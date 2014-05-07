@@ -216,6 +216,10 @@ extern void inet_get_local_port_range(int *low, int *high);
 extern unsigned long *sysctl_local_reserved_ports;
 static inline int inet_is_reserved_local_port(int port)
 {
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (ccs_lport_reserved(port))
+		return 1;
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 	return test_bit(port, sysctl_local_reserved_ports);
 }
 

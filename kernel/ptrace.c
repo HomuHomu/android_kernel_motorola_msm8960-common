@@ -783,7 +783,13 @@ SYSCALL_DEFINE4(ptrace, long, request, long, pid, unsigned long, addr,
 {
 	struct task_struct *child;
 	long ret;
-
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 11/30/2012 for TOMOYO patch
+	{
+		const int rc = ccs_ptrace_permission(request, pid);
+		if (rc)
+			return rc;
+	}
+	//END, MSE, ml-motofelica@nttd-mse.com 11/30/2012 for TOMOYO patch
 	if (request == PTRACE_TRACEME) {
 		ret = ptrace_traceme();
 		if (!ret)
@@ -929,6 +935,13 @@ asmlinkage long compat_sys_ptrace(compat_long_t request, compat_long_t pid,
 {
 	struct task_struct *child;
 	long ret;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 11/30/2012 for TOMOYO patch
+	{
+		const int rc = ccs_ptrace_permission(request, pid);
+		if (rc)
+			return rc;
+	}
+	//END, MSE, ml-motofelica@nttd-mse.com 11/30/2012 for TOMOYO patch
 
 	if (request == PTRACE_TRACEME) {
 		ret = ptrace_traceme();

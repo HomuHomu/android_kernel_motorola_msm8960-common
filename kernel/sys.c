@@ -180,6 +180,12 @@ SYSCALL_DEFINE3(setpriority, int, which, int, who, int, niceval)
 
 	if (which > PRIO_USER || which < PRIO_PROCESS)
 		goto out;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (!ccs_capable(CCS_SYS_NICE)) {
+		error = -EPERM;
+		goto out;
+	}
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 	/* normalize: avoid signed division (rounding problems) */
 	error = -ESRCH;
@@ -414,6 +420,10 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 			magic2 != LINUX_REBOOT_MAGIC2B &&
 	                magic2 != LINUX_REBOOT_MAGIC2C))
 		return -EINVAL;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (!ccs_capable(CCS_SYS_REBOOT))
+		return -EPERM;
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 	/* Instead of trying to make the power_off code look like
 	 * halt when pm_power_off is not set do it the easy way.
@@ -1244,6 +1254,10 @@ SYSCALL_DEFINE2(sethostname, char __user *, name, int, len)
 
 	if (len < 0 || len > __NEW_UTS_LEN)
 		return -EINVAL;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (!ccs_capable(CCS_SYS_SETHOSTNAME))
+		return -EPERM;
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 	down_write(&uts_sem);
 	errno = -EFAULT;
 	if (!copy_from_user(tmp, name, len)) {
@@ -1293,6 +1307,10 @@ SYSCALL_DEFINE2(setdomainname, char __user *, name, int, len)
 		return -EPERM;
 	if (len < 0 || len > __NEW_UTS_LEN)
 		return -EINVAL;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (!ccs_capable(CCS_SYS_SETHOSTNAME))
+		return -EPERM;
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 	down_write(&uts_sem);
 	errno = -EFAULT;

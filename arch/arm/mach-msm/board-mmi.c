@@ -903,6 +903,93 @@ static __init void mot_init_emu_detection(
 	}
 }
 
+#if defined(CONFIG_FELICA_HW)
+
+#define MSM_GSBI8_PHYS		0x1A000000
+#define MSM_UART8DM_PHYS	(MSM_GSBI8_PHYS + 0x40000)
+
+static struct gpiomux_setting felica_gsbi8_active = {
+	.func = GPIOMUX_FUNC_1,
+	.drv = GPIOMUX_DRV_2MA,
+	.pull = GPIOMUX_PULL_NONE,
+};
+
+static struct gpiomux_setting felica_gsbi8_suspend = {
+	.func = GPIOMUX_FUNC_1,
+	.drv = GPIOMUX_DRV_2MA,
+	.pull = GPIOMUX_PULL_NONE,
+};
+
+static struct gpiomux_setting felica_common = {
+	.func = GPIOMUX_FUNC_GPIO,
+	.drv = GPIOMUX_DRV_2MA,
+	.pull = GPIOMUX_PULL_UP,
+};
+
+static struct msm_gpiomux_config msm8960_felica_gpio_configs[] __initdata = {
+	{
+		.gpio = 106,
+		.settings = {
+			[GPIOMUX_ACTIVE] = &felica_common,
+			[GPIOMUX_SUSPENDED] = &felica_common,
+		},
+	},
+	{
+		.gpio      = 34,	/* GSBI8 UART */
+		.settings = {
+			[GPIOMUX_ACTIVE] = &felica_gsbi8_active,
+			[GPIOMUX_SUSPENDED] = &felica_gsbi8_suspend,
+		},
+	},
+	{
+		.gpio      = 35,	/* GSBI8 UART */
+		.settings = {
+			[GPIOMUX_ACTIVE] = &felica_gsbi8_active,
+			[GPIOMUX_SUSPENDED] = &felica_gsbi8_suspend,
+		},
+	},
+};
+
+/* GSBI8 UART used by FeliCa */
+static struct resource resources_uart_gsbi8[] = {
+	{
+		.start	= GSBI8_UARTDM_IRQ,
+		.end	= GSBI8_UARTDM_IRQ,
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= MSM_UART8DM_PHYS,
+		.end	= MSM_UART8DM_PHYS + PAGE_SIZE - 1,
+		.name	= "uartdm_resource",
+		.flags	= IORESOURCE_MEM,
+	},
+	{
+		.start	= MSM_GSBI8_PHYS,
+		.end	= MSM_GSBI8_PHYS + PAGE_SIZE - 1,
+		.name	= "gsbi_resource",
+		.flags	= IORESOURCE_MEM,
+	},
+};
+
+struct platform_device msm8960_device_uart_gsbi8 = {
+	.name	= "msm_serial_hsl",
+	.id	= 1,
+	.num_resources	= ARRAY_SIZE(resources_uart_gsbi8),
+	.resource	= resources_uart_gsbi8,
+};
+
+
+static __init void mot_init_felica(void)
+{
+	msm_gpiomux_install(msm8960_felica_gpio_configs,
+			ARRAY_SIZE(msm8960_felica_gpio_configs));
+	if (platform_device_register(&msm8960_device_uart_gsbi8))
+		printk(KERN_ERR "failed to register UART@gsbi8\n");
+}
+#else
+static inline void mot_init_felica(void) {}
+#endif
+
 static void __init config_ulpi_from_dt(void)
 {
 	struct device_node *chosen;
@@ -3986,6 +4073,8 @@ static void __init msm8960_mmi_init(void)
 
 	msm8960_pm_init(RPM_APCC_CPU0_WAKE_UP_IRQ);
 	mot_tcmd_export_gpio();
+
+	mot_init_felica();
 
 	change_memory_power = &msm8960_change_memory_power;
 	BUG_ON(msm_pm_boot_init(&msm_pm_boot_pdata));

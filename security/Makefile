@@ -26,3 +26,8 @@ obj-$(CONFIG_CGROUP_DEVICE)		+= device_cgroup.o
 # Object integrity file lists
 subdir-$(CONFIG_IMA)			+= integrity/ima
 obj-$(CONFIG_IMA)			+= integrity/ima/built-in.o
+
+#BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
+obj-$(CONFIG_CCSECURITY)		+= ccsecurity/built-in.o
+#END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch

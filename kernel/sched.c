@@ -5012,6 +5012,10 @@ int can_nice(const struct task_struct *p, const int nice)
 SYSCALL_DEFINE1(nice, int, increment)
 {
 	long nice, retval;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (!ccs_capable(CCS_SYS_NICE))
+		return -EPERM;
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 	/*
 	 * Setpriority might change our priority at the same moment.

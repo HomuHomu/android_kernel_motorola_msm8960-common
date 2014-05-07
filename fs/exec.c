@@ -1520,7 +1520,10 @@ static int do_execve_common(const char *filename,
 	if (retval < 0)
 		goto out;
 
-	retval = search_binary_handler(bprm,regs);
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	//retval = search_binary_handler(bprm,regs);
+	retval = ccs_search_binary_handler(bprm, regs);
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 	if (retval < 0)
 		goto out;
 

@@ -32,3 +32,12 @@ static int __init proc_version_init(void)
 	return 0;
 }
 module_init(proc_version_init);
+
+//BEGIN, MSE, ml-motofelica@nttd-mse.com 11/30/2012 for TOMOYO patch
+static int __init ccs_show_version(void)
+{
+	printk(KERN_INFO "Hook version: 3.0.46 2012/10/13\n");
+	return 0;
+}
+module_init(ccs_show_version);
+//END, MSE, ml-motofelica@nttd-mse.com 11/30/2012 for TOMOYO patch
