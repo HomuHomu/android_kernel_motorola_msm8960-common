@@ -1530,6 +1530,12 @@ SYSCALL_DEFINE4(accept4, int, fd, struct sockaddr __user *, upeer_sockaddr,
 	if (err < 0)
 		goto out_fd;
 
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (ccs_socket_post_accept_permission(sock, newsock)) {
+		err = -EAGAIN; /* Hope less harmful than -EPERM. */
+		goto out_fd;
+	}
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 	if (upeer_sockaddr) {
 		if (newsock->ops->getname(newsock, (struct sockaddr *)&address,
 					  &len, 2) < 0) {

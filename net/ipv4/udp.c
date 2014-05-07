@@ -1183,6 +1183,12 @@ try_again:
 				  &peeked, &err);
 	if (!skb)
 		goto out;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (ccs_socket_post_recvmsg_permission(sk, skb, flags)) {
+		err = -EAGAIN; /* Hope less harmful than -EPERM. */
+		goto out;
+	}
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 	ulen = skb->len - sizeof(struct udphdr);
 	if (len > ulen)

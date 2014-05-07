@@ -133,10 +133,23 @@ extern struct cred init_cred;
 # define INIT_PERF_EVENTS(tsk)
 #endif
 
+//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+#if defined(CONFIG_CCSECURITY) && !defined(CONFIG_CCSECURITY_USE_EXTERNAL_TASK_SECURITY)
+#define INIT_CCSECURITY          \
+	.ccs_domain_info = NULL, \
+	.ccs_flags = 0,
+#else
+#define INIT_CCSECURITY
+#endif
+//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+
+
 /*
  *  INIT_TASK is used to set up the first task table, touch at
  * your own risk!. Base=0, limit=0x1fffff (=2MB)
  */
+//MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+//add INIT_CCSECURITY
 #define INIT_TASK(tsk)	\
 {									\
 	.state		= 0,						\
@@ -201,6 +214,7 @@ extern struct cred init_cred;
 	INIT_TRACE_RECURSION						\
 	INIT_TASK_RCU_PREEMPT(tsk)					\
 	INIT_CPUSET_SEQ							\
+	INIT_CCSECURITY                                                 \
 }
 
 

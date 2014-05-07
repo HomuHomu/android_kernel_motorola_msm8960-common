@@ -44,6 +44,10 @@
 
 #ifdef __KERNEL__
 
+//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+struct ccs_domain_info;
+//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+
 struct sched_param {
 	int sched_priority;
 };
@@ -1583,6 +1587,12 @@ struct task_struct {
 #ifdef CONFIG_HAVE_HW_BREAKPOINT
 	atomic_t ptrace_bp_refcnt;
 #endif
+//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+#if defined(CONFIG_CCSECURITY) && !defined(CONFIG_CCSECURITY_USE_EXTERNAL_TASK_SECURITY)
+	struct ccs_domain_info *ccs_domain_info;
+	u32 ccs_flags;
+#endif
+//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 };
 
 /* Future-safe accessor for struct task_struct's cpus_allowed. */

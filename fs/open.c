@@ -1124,6 +1124,10 @@ EXPORT_SYMBOL(sys_close);
  */
 SYSCALL_DEFINE0(vhangup)
 {
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (!ccs_capable(CCS_SYS_VHANGUP))
+		return -EPERM;
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 	if (capable(CAP_SYS_TTY_CONFIG)) {
 		tty_vhangup_self();
 		return 0;

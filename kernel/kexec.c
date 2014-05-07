@@ -40,6 +40,9 @@
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/sections.h>
+//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+#include <linux/ccsecurity.h>
+//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 /* Per cpu memory for storing cpu states in case of system crash. */
 note_buf_t __percpu *crash_notes;
@@ -948,6 +951,10 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
 	/* We only trust the superuser with rebooting the system. */
 	if (!capable(CAP_SYS_BOOT))
 		return -EPERM;
+	//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+	if (!ccs_capable(CCS_SYS_KEXEC_LOAD))
+		return -EPERM;
+	//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 	/*
 	 * Verify we have a legal set of flags

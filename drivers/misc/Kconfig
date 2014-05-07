@@ -667,6 +667,11 @@ config QFP_FUSE
 	  to the fuse block. Currently this is supported only
 	  on FSM targets.
 
+config FELICA_HW
+	tristate "Felica support"
+	help
+	  Enables this driver to support Felica HW
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"

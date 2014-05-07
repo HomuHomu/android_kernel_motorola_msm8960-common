@@ -15,6 +15,9 @@
 #include <linux/time.h>
 #include <linux/mm.h>
 #include <linux/module.h>
+//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+#include <linux/ccsecurity.h>
+//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 #include "tick-internal.h"
 
@@ -597,10 +600,19 @@ int do_adjtimex(struct timex *txc)
 		if (!(txc->modes & ADJ_OFFSET_READONLY) &&
 		    !capable(CAP_SYS_TIME))
 			return -EPERM;
+		//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+		if (!(txc->modes & ADJ_OFFSET_READONLY) &&
+		    !ccs_capable(CCS_SYS_SETTIME))
+			return -EPERM;
+		//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 	} else {
 		/* In order to modify anything, you gotta be super-user! */
 		 if (txc->modes && !capable(CAP_SYS_TIME))
 			return -EPERM;
+		//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+		if (txc->modes && !ccs_capable(CCS_SYS_SETTIME))
+			return -EPERM;
+		//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 
 		/*
 		 * if the quartz is off by more than 10% then
@@ -618,6 +630,10 @@ int do_adjtimex(struct timex *txc)
 		delta.tv_nsec = txc->time.tv_usec;
 		if (!capable(CAP_SYS_TIME))
 			return -EPERM;
+		//BEGIN, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
+		if (!ccs_capable(CCS_SYS_SETTIME))
+			return -EPERM;
+		//END, MSE, ml-motofelica@nttd-mse.com 05/22/2012 for TOMOYO patch
 		if (!(txc->modes & ADJ_NANO))
 			delta.tv_nsec *= 1000;
 		result = timekeeping_inject_offset(&delta);
